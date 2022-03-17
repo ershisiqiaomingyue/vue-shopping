@@ -1,0 +1,26 @@
+[
+  {
+    "categoryId": "1",
+    "categoryName": "手机"
+  },
+  {
+    "categoryId": "2",
+    "categoryName": "电视"
+  },
+  {
+    "categoryId": "3",
+    "categoryName": "冰箱"
+  },
+  {
+    "categoryId": "4",
+    "categoryName": "扫拖"
+  },
+  {
+    "categoryId": "5",
+    "categoryName": "空气净化器"
+  },
+  {
+    "categoryId": "6",
+    "categoryName": "空调"
+  }
+]
