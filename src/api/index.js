@@ -34,7 +34,7 @@ export const reqApplianceList = () => requests({
 })
 
 
-//获取主页托扫的列表
+//3、获取主页托扫的列表
 export const reqLiveList = () => requests({
     url:'/product/liveList',
     method:'get'

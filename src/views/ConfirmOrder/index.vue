@@ -136,15 +136,15 @@ export default {
       address: [
         {
           id: 1,
-          name: "陈同学",
-          phone: "13580018623",
-          address: "广东 广州市 白云区 江高镇 广东白云学院"
+          name: "牛逼666",
+          phone: "10086-6666",
+          address: "山东省 菏泽市 曹县 牛逼 666"
         },
         {
           id: 2,
-          name: "陈同学",
-          phone: "13580018623",
-          address: "广东 茂名市 化州市 杨梅镇 ***"
+          name: "方同学",
+          phone: "100086-6666",
+          address: "陕西省 西安市 未央区 西安工业大学"
         }
       ]
     };
@@ -191,6 +191,7 @@ export default {
             return Promise.reject(err);
           });
     },
+    //弹框提交订单，未实现！
     async addOrder1() {
       this.$confirm(`<img src='/pay.png' alt="" width="200px"/>`, '支付', {
         dangerouslyUseHTMLString:true,

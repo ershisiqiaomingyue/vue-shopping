@@ -159,13 +159,12 @@ export default {
     //修改某个产品的勾选状态
     async updateChecked(item, event,index) {
       try {
-        let is_checked = event
+        let is_checked = event //当前商品是否被勾选的属性值
         await this.$store.dispatch('updateCheckedById', {
           product_id: item.productId,
-          is_checked,
+          is_checked,//是否已已经被勾选
           user_id: item.userId,
-          index,
-          event
+          index,//点击的商品的商品信息
         })
         await this.getData()
       } catch (e) {

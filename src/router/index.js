@@ -7,7 +7,7 @@ Vue.use(Router)
 
 const router = new Router({
     // base: '/dist',
-    // mode: 'history',
+    mode: 'hash',
     routes,
     //打开新网页后，直接跳转到最上方
     scrollBehavior() {
