@@ -75,6 +75,8 @@ yarn lint
 
 线上：http://124.123.15.9:5000
 
+后端：[goodsServer](https://github.com/ershisiqiaomingyue/goodsServer)
+
 ### 1.2、公共请求参数(还未实现) ×
 
 每个api需要的Header请求头参数值（登录接口不需要）
