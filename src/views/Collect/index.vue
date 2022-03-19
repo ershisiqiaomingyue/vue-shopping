@@ -33,7 +33,7 @@
 import {mapState} from "vuex";
 
 export default {
-  mounted() {
+  activated() {
     this.$store.dispatch('getLike',{user_id:this.$store.getters.getUser.userId})
   },
   computed: {

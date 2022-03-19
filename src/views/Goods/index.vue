@@ -74,19 +74,31 @@ export default {
   },
   watch: {
     'list.categoryID': {
-      handler(){
+      handler(val){
+        console.log("id="+val)
         this.getData();
-        if (this.$route.query) {
-          this.$router.push({
-            name: 'Goods',
-            query:this.$route.query
-          });
-        }
         this.list.keyword = ''
+        this.list.categoryID = null
+      }
+    },
+    'list.keyword': {
+      handler(val){
+        console.log("keyword:"+val)
+        if (val != ''){
+          this.getData();
+        }
       }
     },
     // 监听路由变化，更新路由传递了搜索条件
-    $route() {
+    $route(val) {
+      console.log(val)
+      if (val.path == "/goods"){
+        if (val.query.keyword != null || val.query.keyword != undefined){
+          this.currentPage = 1;
+          this.total = 0;
+          this.keyword = val.query.keyword;
+        }
+      }
       //合并参数
       Object.assign(this.list,this.$route.query,this.$route.params)
       this.getData()
@@ -125,7 +137,7 @@ export default {
     }
   },
   //在组件挂载完毕之前执行一次，在mounted之前
-  beforeMount() {
+  activated() {
     //发请求之前，通过这个方法 数据合并！ 后面两个数据合并到第一个数据中
     Object.assign(this.list,this.$route.query,this.$route.params)
   },

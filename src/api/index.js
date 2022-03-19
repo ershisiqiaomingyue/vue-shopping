@@ -70,6 +70,13 @@ export const reqAddLike = (params) => requests({
     data:params
 })
 
+//删除喜欢的商品
+export const reqDeleteLike = (data) => requests({
+    url:'collect/delete',
+    method:'post',
+    data
+})
+
 //获取购物车的信息
 export const reqGetShoppingCart = (params) => requests({
     url:'/shoppingCart/info',

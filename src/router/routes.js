@@ -20,7 +20,7 @@ export const routes = [
         })
     },
     {
-        path: '/details/:productid',
+        path: '/details/:productid?',
         name: 'Details',
         component: () => import('@/views/Details')
     },

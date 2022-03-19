@@ -98,7 +98,6 @@
 
 <script>
 import {mapActions, mapState} from "vuex";
-
 export default {
   data() {
     return {
@@ -108,8 +107,8 @@ export default {
     };
   },
   // 通过路由获取商品id
-  created() {
-    if (this.$route.query.productid != undefined) {
+  activated() {
+    if (this.$route.query.productid !== undefined) {
       this.productID = this.$route.query.productid;
     }
   },
@@ -178,7 +177,7 @@ export default {
     }
   },
   mounted() {
-    //this.getDetails();
+    //this.getDetails(this.productID);
     //需要向后端请求，获取商品数量，如果小于0，添加购物车会失败
   },
   computed:{

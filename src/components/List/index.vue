@@ -43,9 +43,6 @@ export default {
   // list为父组件传过来的商品列表
   // isMore为是否显示“浏览更多”
   props: ["list", "isMore", "isDelete"],
-  data() {
-    return {};
-  },
   computed: {
     // 通过list获取当前显示的商品的分类ID，用于“浏览更多”链接的参数
     categoryID: function() {
@@ -63,14 +60,13 @@ export default {
   },
   methods: {
     deleteCollect(productId) {
-      this.$axios
-          .post("/api/user/collect/deleteCollect", {
-            user_id: this.$store.getters.getUser.user_id,
+      this.$api.reqDeleteLike({
+            user_id: this.$store.getters.getUser.userId,
             productId: productId
           })
           .then(res => {
             switch (res.data.code) {
-              case "001":
+              case 200:
                 // 删除成功
                 // 删除删除列表中的该商品信息
                 for (let i = 0; i < this.list.length; i++) {
@@ -87,9 +83,7 @@ export default {
                 this.notifyError(res.data.msg);
             }
           })
-          .catch(err => {
-            return Promise.reject(err);
-          });
+
     }
   }
 };
