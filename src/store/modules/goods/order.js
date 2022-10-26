@@ -1,5 +1,5 @@
 // home模块的仓库
-import {reqDeleteShoppingCart, reqGet, reqGetShoppingCart, reqPay} from '@/api'
+import api from '@/api'
 
 const state = {
     orderList:[]
@@ -27,10 +27,17 @@ const actions = {
         }
     },
     //获取订单
-    async getOrder({commit },params={}) {
-        const result = await reqGet(params)
-        if (result.data.code === 200) {
-            commit('GET', result.data.data)
+    async getOrder({commit },params) {
+        if (params === undefined) {
+            params = {
+                currentPage:1,
+                pageSize:3
+            }
+        }
+        const res = await api.reqGetOrder(params);
+        if (res.code === 200) {
+            commit('GET', res.data)
+            return res
         }
     }
 

@@ -1,25 +1,37 @@
 // home模块的仓库
-import { reqGetLike} from '@/api'
+import api from '@/api/index.js'
 
 const state = {
-    list:{}
+    list:{},
+    collectNum:null
 }
+
 const mutations = {
-    GETLIKE (state, list) {
-        state.list = list
+    getLike (state, data) {
+        state.list = data.productList
+        state.collectNum = data.total
     }
 }
+
 const actions = {
     // 获取喜欢的商品
-    async getLike ({ commit },params={}) {
-        const result = await reqGetLike(params)
-        if (result.data.code === 200) {
-            commit('GETLIKE', result.data.data)
+    async getLike ({ commit },data) {
+        if (data === undefined){
+            data = {
+                pageSize:5,
+                currentPage:1
+            }
+        }
+        const res = await api.reqGetLikeProduct(data)
+        if (res.code === 200) {
+            commit('getLike', res.data)
+            return res
         }
     },
 }
 // 计算属性
 const getters = {
+
 }
 export default {
     state,

@@ -18,23 +18,26 @@ const router = new Router({
 
 // 全局拦截器,在进入需要用户权限的页面前校验是否已经登录
 router.beforeResolve((to, from, next) => {
-    const loginUser = store.state.user.user;
+    const user = window.localStorage.getItem('user')
+    const token = window.localStorage.getItem('token')
+    const storeUser = JSON.stringify(store.state.user.user)
+    if (storeUser === '{}' && user !== null){
+        store.dispatch('setUser',JSON.parse(user))
+    }
+
+    const isLogon = token !== null
     // 判断路由是否设置相应校验用户权限
     if (to.meta.requireAuth) {
-        if (!loginUser) {
+        if (!isLogon) {
             // 没有登录，显示登录组件
+            next(`${from.path}`);
             store.dispatch("setShowLogin", true);
-            if (from.name == null) {
-                //此时，是在页面没有加载，直接在地址栏输入链接，进入需要登录验证的页面
-                next("/");
-                return;
-            }
-            // 终止导航
-            next(false);
-            return;
+        }else {
+            next();
         }
+    }else {
+        next();
     }
-    next();
 });
 
 /* 由于Vue-router在3.1之后把$router.push()方法改为了Promise。所以假如没有回调函数，错误信息就会交给全局的路由错误处理。

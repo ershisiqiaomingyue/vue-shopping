@@ -1,5 +1,5 @@
 // home模块的仓库
-import { reqBannerList } from '@/api'
+import api from '@/api'
 
 const state = {
   bannerList: []
@@ -12,10 +12,9 @@ const mutations = {
 const actions = {
   // 获取首页轮播图的数据
   async getBannerList ({ commit }) {
-    const result = await reqBannerList()
-    if (result.code === 200) {
-      console.log(result.data)
-      commit('GETBANNERLIST', result.data)
+    const res = await api.reqBannerList()
+    if (res.code === 200) {
+      commit('GETBANNERLIST', res.data)
     }
   }
 }

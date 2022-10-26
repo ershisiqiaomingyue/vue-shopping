@@ -27,15 +27,16 @@
         <div class="address-body">
           <ul>
             <li
-                :class="item.id == confirmAddress ? 'in-section' : ''"
+                :class="item.id === confirmAddress ? 'in-section' : ''"
                 v-for="item in address"
                 :key="item.id"
+                @click="changeAddr"
             >
               <h2>{{item.name}}</h2>
               <p class="phone">{{item.phone}}</p>
               <p class="address">{{item.address}}</p>
             </li>
-            <li class="add-address">
+            <li class="add-address" @click="addAddr">
               <i class="el-icon-circle-plus-outline"></i>
               <p>添加新地址</p>
             </li>
@@ -52,9 +53,9 @@
             <li v-for="item in getCheckGoods" :key="item.id">
               <img :src="item.productPicture" />
               <span class="pro-name">{{item.productName}}</span>
-              <span class="pro-price">{{item.productPrice}}元 x {{item.totalNum}}</span>
+              <span class="pro-price">{{item.sellingPrice}}元 x {{item.productNum}}</span>
               <span class="pro-status"></span>
-              <span class="pro-total">{{item.productPrice * item.totalNum}}元</span>
+              <span class="pro-total">{{item.sellingPrice * item.productNum}}元</span>
             </li>
           </ul>
         </div>
@@ -136,9 +137,9 @@ export default {
       address: [
         {
           id: 1,
-          name: "牛逼666",
+          name: "小张",
           phone: "10086-6666",
-          address: "山东省 菏泽市 曹县 牛逼 666"
+          address: "陕西省 西安市"
         },
         {
           id: 2,
@@ -162,37 +163,13 @@ export default {
   },
   methods: {
     ...mapActions(["deleteShoppingCartById",'getShoppingCartList']),
-    //添加订单
+    //弹框提交订单，未实现！
     async addOrder() {
-      //封装数据
       let arr = []
       for (let i = 0; i < this.getCheckGoods.length; i++) {
         arr.push(this.getCheckGoods[i])
       }
-      this.$api.reqPay(arr).then((res) => {
-            let products = this.getCheckGoods;
-            if(res.data.code == 200) {
-              for (let i = 0; i < products.length; i++) {
-                const temp = products[i];
-                // 删除已经结算的购物车商品
-                this.$store.dispatch('deleteShoppingCartById', temp.id)
-              }
-              // 提示结算结果
-              this.notifySucceed(res.data.msg);
-              // 跳转我的订单页面
-              this.$router.push({path: "/order"})
-            }
-             else {
-              // 提示失败信息
-              this.notifyError(res.data.msg);
-            }
-          })
-          .catch(err => {
-            return Promise.reject(err);
-          });
-    },
-    //弹框提交订单，未实现！
-    async addOrder1() {
+      console.log(arr)
       this.$confirm(`<img src='/pay.png' alt="" width="200px"/>`, '支付', {
         dangerouslyUseHTMLString:true,
         cancelButtonText: '取消',
@@ -200,22 +177,36 @@ export default {
         center: true,
         showClose:false
       },).then(() => {
-        //这里派发api请求
-        this.pay()
+        this.$api.reqPay(arr)
+            .then((res)=>{
+              if (res.code === 200) {
+                this.$bus.$emit('getData');
+                this.$message.success('支付成功')
+                this.$router.push('/orderCenter/order')
+              }else {
+                this.$message.error(res.msg)
+              }
+        })
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消支付'
-        });
+        this.$message.info('已取消支付');
       });
     },
+
+    //改变地址
+    //TODO
+    changeAddr(){
+      this.confirmAddress = 2
+    },
+
+    //添加地址
+    //TODO
+    addAddr(){
+      console.log("要去添加地址咯！")
+    }
   },
   mounted() {
     //一加载，就发送请求，获取数据
-    this.$store.dispatch('getShoppingCartList',{
-          user_id:this.$store.getters.getUser.userId
-        }
-    )
+    //this.$store.dispatch('getShoppingCartList')
   },
 };
 </script>

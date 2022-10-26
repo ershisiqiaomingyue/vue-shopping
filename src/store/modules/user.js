@@ -1,5 +1,5 @@
 const state = {
-    user: "", // 登录的用户
+    user: {}, // 登录的用户
     showLogin: false // 用于控制是否显示登录组件
 }
 const mutations = {
@@ -8,7 +8,10 @@ const mutations = {
     },
     setShowLogin (state, data) {
       state.showLogin = data;
-    }
+    },
+    deleteUser(state) {
+        state.user = {}
+    },
 }
 const actions = {
     setUser ({ commit }, data) {
@@ -16,7 +19,10 @@ const actions = {
     },
     setShowLogin ({ commit }, data) {
       commit('setShowLogin', data);
-    }
+    },
+    deleteUser({commit}) {
+        commit('deleteUser')
+    },
 }
 const getters = {
     getUser (state) {

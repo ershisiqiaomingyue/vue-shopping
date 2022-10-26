@@ -15,7 +15,8 @@ import global from './plugins/global';
 Vue.use(global);
 
 
-import * as api from './api'
+import  api from './api/index'
+
 
 //这里可以封装api，直接调用，免去在组件中重复调用！
 import Axios from 'axios';
@@ -31,7 +32,8 @@ Vue.config.productionTip = false;
 
 new Vue({
     router,
-    store, beforeCreate() {
+    store,
+    beforeCreate() {
         //引入全局时间总线
         Vue.prototype.$bus = this
         //引入axios插件，以便全局使用！

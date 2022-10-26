@@ -1,84 +1,105 @@
-import {reqDeleteShoppingCart, reqGetShoppingCart, reqUpdateChecked, reqUpdateShoppingCart} from '@/api'
+import api from '@/api'
 
 const state = {
-    shoppingCartList:{}
+    shoppingCartList:[]
 }
 const mutations = {
     // 设置购物车状态
-    SETSHOPPINGCART (state, data) {
+    setShoppingCart (state, data) {
         state.shoppingCartList = data;
     },
-    UNSHIFTSHOPPINGCART(state, data) {
+    unshiftShoppingCart(state, data) {
         // 添加购物车
         // 用于在商品详情页点击添加购物车,后台添加成功后，更新vuex状态
         state.shoppingCartList.unshift(data);
     },
-    GETSHOPPINGCARTLIST(state,shoppingCartList){
+    getShoppingCartList(state,shoppingCartList){
         state.shoppingCartList = shoppingCartList
     },
-    ALLCHECKED (state, data) {
+    allChecked (state, data) {
         // 点击全选按钮，更改每个商品的勾选状态
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             state.shoppingCartList[i].isChecked = data
         }
     },
-    UPDATE(state,params){
-        state.shoppingCartList[params.index].isChecked = params.value;
+    updateCheck(state,data){
+        state.shoppingCartList[data.index].isChecked = data.isChecked;
     },
-    DELETESHOPPINGCARTBYID (state, id) {
+    deleteProductById (state, id) {
         // 根据购物车id删除购物车商品
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             const temp = state.shoppingCartList[i];
-            if (temp.id == id) {
+            if (temp.id === id) {
                 state.shoppingCartList.splice(i, 1);
             }
         }
     },
+    clearShoppingCart(state) {
+        state.shoppingCartList = []
+    },
 }
 const actions = {
+    //清空购物车
+    clearShoppingCart({commit}) {
+        commit('clearShoppingCart');
+    },
     //设置购物车状态
     setShoppingCart ({ commit }, data) {
-        commit('SETSHOPPINGCART', data);
+        commit('setShoppingCart', data);
     },
+    //在详情页面向后端发起请求后，再向购物车添加数据
     unshiftShoppingCart ({ commit }, data) {
-        commit('UNSHIFTSHOPPINGCART', data);
+        commit('unshiftShoppingCart', data);
     },
     //获取购物车的信息
-    async getShoppingCartList ({ commit },params={}) {
-        const result = await reqGetShoppingCart(params)
-        if (result.data.code == 200){
-            commit('GETSHOPPINGCARTLIST',result.data.data)
+    async getShoppingCartList ({ commit },data) {
+        if (data === undefined) {
+            data = {
+                currentPage:1,
+                pageSize:6
+            }
+        }
+        const res = await api.reqGetShoppingCart(data);
+        if (res.code === 200){
+            commit('getShoppingCartList',res.data.productList)
+            return res
+        }
+        if (res.code === 401){
+            await this.$store.dispatch('setShowLogin', true)
         }
     },
     //更新购物车的数量
-    async updateShoppingCart ({ commit }, params={}) {
-        const result = await reqUpdateShoppingCart(params);
+    async updateNum ({ commit }, params={}) {
+        const result = await api.reqUpdateNum(params);
     },
     //删除
-    async deleteShoppingCart ({ commit }, params={}) {
-        const result = await reqDeleteShoppingCart(params);
-        if (result.data.code === 200) {
-            this.notifySucceed(result.data.msg);
-        } else {
-            this.notifyError(result.data.msg)
+    async deleteShoppingCart ({ commit }, productId) {
+        const res = await api.reqDeleteShoppingCart(productId);
+        if (res.code === 200) {
+            //this.notifySucceed(result.data.msg);
+            //修改vuex的数据
+            commit('deleteProductById',productId)
         }
+        return res;
     },
 
     //更新选择
-    async updateCheckedById({commit}, params={}) {
-        const result = await reqUpdateChecked({
-            product_id:params.product_id,
-            is_checked:params.is_checked,
-            user_id: params.user_id,
-        });
-        commit("UPDATE",{index:params.index,value:params.event})
+    async updateCheckedById({commit},data = {}) {
+        const res = await api.reqUpdateChecked(data);
+        if (res.code === 200) {
+            commit("updateCheck",{
+                index:data.index,
+                isChecked:data.isChecked
+            });
+            return res;
+        }
     },
     //更新全选
     allChecked ({ commit }, data) {
-        commit('ALLCHECKED', data);
+        commit('allChecked', data);
     },
     deleteShoppingCartById ({ commit }, id) {
-        commit('DELETESHOPPINGCARTBYID', id);
+        commit('deleteProductById', id);
     },
 
 }
@@ -89,7 +110,7 @@ const getters = {
         let totalNum = 0;
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             const temp = state.shoppingCartList[i];
-            totalNum += temp.totalNum;
+            totalNum += temp.productNum;
         }
         return totalNum;
     },
@@ -112,7 +133,7 @@ const getters = {
         let checkGoods = [];
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             const temp = state.shoppingCartList[i];
-            if (temp.isChecked == 1) {
+            if (temp.isChecked === true) {
                 checkGoods.push(temp);
             }
         }
@@ -123,8 +144,8 @@ const getters = {
         let totalNum = 0;
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             const temp = state.shoppingCartList[i];
-            if (temp.isChecked == 1) {
-                totalNum += temp.totalNum;
+            if (temp.isChecked === true) {
+                totalNum += temp.productNum;
             }
         }
         return totalNum;
@@ -134,8 +155,8 @@ const getters = {
         let totalPrice = 0;
         for (let i = 0; i < state.shoppingCartList.length; i++) {
             const temp = state.shoppingCartList[i];
-            if (temp.isChecked == 1) {
-                totalPrice += temp.productPrice * temp.totalNum;
+            if (temp.isChecked === true) {
+                totalPrice += temp.sellingPrice * temp.productNum;
             }
         }
         return totalPrice;

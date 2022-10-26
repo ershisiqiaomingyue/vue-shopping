@@ -1,38 +1,25 @@
-<!--
- * @Description: 列表组件，用于首页、全部商品页面的商品列表
- * @Author: hai-27
- * @Date: 2020-02-07 16:23:00
- * @LastEditors: hai-27
- * @LastEditTime: 2020-04-05 13:22:22
- -->
 <template>
   <div id="myList" class="myList">
     <ul>
       <li v-for="item in list" :key="item.productId">
-        <el-popover placement="top">
-          <p>确定删除吗？</p>
-          <div style="text-align: right; margin: 10px 0 0">
-            <el-button type="primary" size="mini" @click="deleteCollect(item.productId)">确定</el-button>
-          </div>
-          <i class="el-icon-close delete" slot="reference" v-show="isDelete"></i>
-        </el-popover>
-        <router-link :to="{ path: '/details/productid', query: {productid:item.productId} }">
-          <img :src="item.productPicture" alt />
+        <router-link :to="{ path: `/details/productId=${item.productId}` }">
+          <img :src="item.productPicture" alt  />
           <h2>{{item.productName}}</h2>
           <h3>{{item.productTitle}}</h3>
           <p>
-            <span>{{item.productSellingPrice}}元</span>
+            <span>{{item.sellingPrice}}元</span>
             <span
-                v-show="item.productPrice != item.productSellingPrice"
-                class="del"
-            >{{item.productPrice}}元</span>
+                v-show="item.price !== item.sellingPrice"
+                class="del">
+              {{item.price}}元
+            </span>
           </p>
         </router-link>
       </li>
       <li v-show="isMore && list.length>=1" id="more">
-        <router-link :to="{ path: '/goods', query: {categoryid:categoryID} }">
+        <router-link :to="{ path: '/goods', query: {categoryId:categoryId} }">
           浏览更多
-          <i class="el-icon-d-arrow-right"></i>
+          <i class="el-icon-d-arrow-right"/>
         </router-link>
       </li>
     </ul>
@@ -45,17 +32,18 @@ export default {
   props: ["list", "isMore", "isDelete"],
   computed: {
     // 通过list获取当前显示的商品的分类ID，用于“浏览更多”链接的参数
-    categoryID: function() {
-      let categoryid = [];
-      if (this.list != "") {
+    categoryId() {
+      let categoryId = [];
+      if (this.list !== "") {
+        //console.log(this.list)
         for (let i = 0; i < this.list.length; i++) {
           const id = this.list[i].categoryId;
-          if (!categoryid.includes(id)) {
-            categoryid.push(id);
+          if (!categoryId.includes(id)) {
+            categoryId.push(id);
           }
         }
       }
-      return categoryid;
+      return categoryId;
     }
   },
   methods: {
@@ -101,6 +89,7 @@ export default {
   transition: all 0.2s linear;
   position: relative;
 }
+
 .myList ul li:hover {
   z-index: 2;
   -webkit-box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);

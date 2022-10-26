@@ -12,7 +12,7 @@ import user from './modules/user'
 import banner from "./modules/mock/banner";
 import home from "@/store/modules/home/home";
 import details from "@/store/modules/goods/details";
-import goods from "@/store/modules/goods/goods";
+import product from "@/store/modules/goods/product";
 import shoppingCart from "@/store/modules/goods/shoppingCart";
 import collect from "@/store/modules/collect";
 import order from "@/store/modules/goods/order";
@@ -28,7 +28,7 @@ export default new Vuex.Store({
     banner,
     home,
     details,
-    goods,
+    product,
     collect,
     order,
     md

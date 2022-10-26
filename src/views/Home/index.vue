@@ -25,13 +25,13 @@
             <div class="title">手机</div>
           </div>
           <div class="box-bd">
-            <div class="promo-list">
-              <router-link to>
-                <img :src="homePhoneBigImg.productPicture"/>
+            <div class="promo-list" v-for="item in phoneMainImg">
+              <router-link :to="`/details/productId=${item.productId}`">
+                <img :src="item.productPicture"/>
               </router-link>
             </div>
             <div class="list">
-              <List :list="homePhoneList" :isMore="true"></List>
+              <List :list="phoneList" :isMore="true"></List>
             </div>
           </div>
         </div>
@@ -47,14 +47,16 @@
           </div>
           <div class="box-bd">
             <div class="promo-list">
-              <ul v-for="(item,id) in homeApplianceBigImg" :key="id">
+              <ul v-for="(item,productId) in applianceMainImg" :key="productId">
                 <li>
-                  <img :src="item.productPicture" />
+                  <router-link :to="`/details/productId=${item.productId}`">
+                    <img :src="item.productPicture" />
+                  </router-link>
                 </li>
               </ul>
             </div>
             <div class="list">
-              <List :list="homeApplianceList" :isMore="true"></List>
+              <List :list="applianceList" :isMore="true"></List>
             </div>
           </div>
         </div>
@@ -70,14 +72,16 @@
           </div>
           <div class="box-bd">
             <div class="promo-list">
-              <ul v-for="(item,id) in homeLiveBigImg" :key="id">
+              <ul v-for="(item,productId) in liveMainImg" :key="productId">
                 <li>
-                  <img :src="item.productPicture" alt />
+                  <router-link :to="`/details/productId=${item.productId}`">
+                    <img :src="item.productPicture" />
+                  </router-link>
                 </li>
               </ul>
             </div>
             <div class="list">
-              <List :list="homeLivelist" :isMore="true"></List>
+              <List :list="liveList" :isMore="true"></List>
             </div>
           </div>
         </div>
@@ -87,44 +91,30 @@
   </div>
 </template>
 <script>
-import {mapGetters, mapState} from 'vuex'
+import { mapState } from 'vuex'
 export default {
   mounted () {
     //获取轮播图
     this.$store.dispatch('getBannerList');
-    //获取手机列表
-    this.$store.dispatch('getPhone')
-    //获取家电列表
+    this.$store.dispatch('getPhoneMainImg')
+    this.$store.dispatch('getApplianceMainImg')
+    this.$store.dispatch('getLiveMainImg')
+    this.$store.dispatch('getPhoneList')
     this.$store.dispatch('getApplianceList')
-    //获取生活电器的列表
     this.$store.dispatch('getLiveList')
+
   },
   computed: {
-    ...mapGetters(['homePhoneBigImg','homeApplianceBigImg','homeLiveBigImg'
-    ,'homeLivelist','homePhoneList','homeApplianceList']),
     ...mapState({
       bannerList: state => state.banner.bannerList || {},
-    }),/*
-    applianceList:{
-      get(){
-        return this.$store.getters.appliance
-      },
-      set(value){
-        //return (value || '').slice(value.length -7 , value.length)
-        return value;
-      }
-    },
-    phoneList(){
-      return this.$store.getters.homePhoneList
-    },
-    liveList:{
-      get(){
-        return this.$store.getters.liveOne
-      },
-      set(){
-        return this.$store.getters.liveTwo
-      }
-    }*/
+      phoneMainImg: state => state.home.phoneMainImg || [],
+      applianceMainImg: state => state.home.applianceMainImg || [],
+      liveMainImg: state => state.home.liveMainImg || [],
+      phoneList: state => state.home.phoneList || [],
+      applianceList: state => state.home.applianceList || [],
+      liveList: state => state.home.liveList || []
+    }),
+
   },
 };
 </script>

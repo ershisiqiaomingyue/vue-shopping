@@ -15,6 +15,27 @@
           ref="ruleForm"
           class="demo-ruleForm"
       >
+        <el-form-item prop="nickName">
+          <el-input
+              prefix-icon="el-icon-user-solid"
+              placeholder="请输入昵称"
+              v-model="RegisterUser.name"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="phone">
+          <el-input
+              prefix-icon="el-icon-phone"
+              placeholder="请输入电话"
+              v-model="RegisterUser.name"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="email">
+          <el-input
+              prefix-icon="el-icon-message"
+              placeholder="请输入邮箱"
+              v-model="RegisterUser.name"
+          ></el-input>
+        </el-form-item>
         <el-form-item prop="name">
           <el-input
               prefix-icon="el-icon-user-solid"
@@ -59,7 +80,7 @@ export default {
       const userNameRule = /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/;
       if (userNameRule.test(value)) {
         //判断数据库中是否已经存在该用户名
-        this.$api.reqCheckAccount( {
+        this.$api.reqValidateUsername( {
           account: this.RegisterUser.name
         })
             .then(res => {
@@ -100,7 +121,7 @@ export default {
         return callback(new Error("请输入确认密码"));
       }
       // 校验是否以密码一致
-      if (this.RegisterUser.pass != "" && value === this.RegisterUser.pass) {
+      if (this.RegisterUser.pass !== "" && value === this.RegisterUser.pass) {
         this.$refs.ruleForm.validateField("checkPass");
         return callback();
       } else {

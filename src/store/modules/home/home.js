@@ -1,66 +1,82 @@
 // home模块的仓库
-import {reqApplianceList, reqBigPhoneImg, reqLiveList, reqPhoneList} from '@/api'
+
+
+import api from "@/api";
 
 const state = {
+    phoneMainImg:[],
+    applianceMainImg:[],
+    liveMainImg:[],
     phoneList:[],
     applianceList:[],
     liveList:[]
 }
 const mutations = {
-    GETPHONE(state, phoneList) {
+    getPhoneMainImg(state,data){
+        state.phoneMainImg = data
+    },
+    getApplianceMainImg(state,data){
+        state.applianceMainImg = data
+    },
+    getLiveMainImg(state,data){
+        state.liveMainImg = data
+    },
+    getPhoneList(state, phoneList) {
         state.phoneList = phoneList
     },
-    GETAPPLIANCELIST(state,applianceList) {
+    getApplianceList(state,applianceList) {
         state.applianceList = applianceList
     },
-    GETLIVELIST(state,liveList) {
+    getLiveList(state,liveList) {
         state.liveList = liveList
     }
 }
 const actions = {
+    // 获取首页的大图
+    async getPhoneMainImg({commit}) {
+        const res = await api.reqGetMainImg(1)
+        if (res.code === 200) {
+            commit('getPhoneMainImg',res.data)
+        }
+    },
+    async getApplianceMainImg({commit}) {
+        const res = await api.reqGetMainImg(2)
+        if (res.code === 200) {
+            commit('getApplianceMainImg',res.data)
+        }
+    },
+    async getLiveMainImg({commit}) {
+        const res = await api.reqGetMainImg(3)
+        if (res.code === 200) {
+            commit('getLiveMainImg',res.data)
+        }
+    },
     // 获取首页手机列表
-    async getPhone ({ commit }) {
-        const result = await reqPhoneList()
-        if (result.data.code === 200) {
-            commit('GETPHONE', result.data.data)
+    async getPhoneList ({ commit }) {
+        const res = await api.reqGetHomeProduct(1)
+        if (res.code === 200) {
+            commit('getPhoneList', res.data)
         }
     },
     // 获取首页家电的列表
     async getApplianceList ({ commit }) {
-        const result = await reqApplianceList()
-        if (result.data.code === 200) {
-            commit('GETAPPLIANCELIST', result.data.data)
+        const res = await api.reqGetHomeProduct(2)
+        if (res.code === 200) {
+            commit('getApplianceList', res.data)
         }
     },
     // 获取首页家电的列表
     async getLiveList ({ commit }) {
-        const result = await reqLiveList()
-        if (result.data.code === 200) {
-            commit('GETLIVELIST', result.data.data)
+        const res = await api.reqGetHomeProduct(3)
+        if (res.code === 200) {
+            commit('getLiveList', res.data)
         }
     },
 
 }
 // 计算属性
 const getters = {
-    homePhoneBigImg(state) {
-        return state.phoneList[4] || []
-    },
-    homeApplianceBigImg(state) {
-        return state.applianceList.slice(0,2)
-    },
-    homeLiveBigImg(state) {
-        return state.liveList.slice(0,2)
-    },
-    homePhoneList(state){
-        return state.phoneList.slice(0,7)
-    },
-    homeApplianceList(state) {
-        return state.applianceList.slice(0,7)
-    },
-    homeLivelist(state){
-        return state.liveList.slice(0,7)
-    }
+
 }
 export default {
     state,

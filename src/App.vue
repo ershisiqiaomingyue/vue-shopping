@@ -1,10 +1,3 @@
-<!--
- * @Description: 项目根组件
- * @Author: hai-27
- * @Date: 2020-02-07 16:23:00
- * @LastEditors: hai-27
- * @LastEditTime: 2020-04-05 13:14:48
- -->
 <template>
   <div id="app" name="app">
     <el-container>
@@ -12,32 +5,30 @@
       <div class="topbar">
         <div class="nav">
           <ul>
-            <li v-if="!this.$store.getters.getUser">
+            <li v-if="!this.getUser.nickName">
               <el-button type="text" @click="login">登录</el-button>
               <span class="sep">|</span>
-              <el-button type="text" @click="register = true">注册</el-button>
+              <!--              <el-button type="text" @click="register = true">注册</el-button>-->
+              <el-button type="text" @click="toRegister">注册</el-button>
             </li>
             <li v-else>
-              欢迎
-              <el-popover placement="top" width="180" v-model="visible">
-                <p>确定退出登录吗？</p>
-                <div style="text-align: right; margin: 10px 0 0">
-                  <el-button size="mini" type="text" @click="visible = false">取消</el-button>
-                  <el-button type="primary" size="mini" @click="logout">确定</el-button>
-                </div>
-                <el-button type="text" slot="reference">{{this.$store.getters.getUser.name}}</el-button>
-              </el-popover>
+              <el-dropdown :hide-on-click="false">
+                  <span class="el-dropdown-link">
+                    {{ this.getUser.nickName }}<i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item @click.native="toOrder">我的订单</el-dropdown-item>
+                  <el-dropdown-item @click.native="toCollect">我的收藏</el-dropdown-item>
+                  <el-dropdown-item @click.native="toCenter">个人中心</el-dropdown-item>
+                  <el-dropdown-item disabled>管理中心</el-dropdown-item>
+                  <el-dropdown-item divided @click.native="logout">退出账号</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </li>
-            <li>
-              <router-link to="/order">我的订单</router-link>
-            </li>
-            <li>
-              <router-link to="/collect">我的收藏</router-link>
-            </li>
-            <li :class="getNum > 0 ? 'shopCart-full' : 'shopCart'">
-              <router-link to="/shoppingCart">
+            <li :class="getNum>0  ? 'shopCart-full' : 'shopCart'">
+              <router-link to="/center/shoppingCart">
                 <i class="el-icon-shopping-cart-full"></i> 购物车
-                <span class="num">({{getNum}})</span>
+                <span class="num" v-if="getNum > 0">({{ getNum }})</span>
               </router-link>
             </li>
           </ul>
@@ -49,20 +40,23 @@
       <el-header>
         <el-menu
             :default-active="activeIndex"
+            active-text-color="#409eff"
             class="el-menu-demo"
             mode="horizontal"
-            active-text-color="#409eff"
             router
         >
           <div class="logo">
-            <router-link to="/">
-              <img src="@/assets/imgs/logo.png" alt width="50px"/>
-            </router-link>
+            <a href="https://github.com/ershisiqiaomingyue/vue-shopping">
+              <img alt src="@/assets/imgs/logo.png" width="50px"/>
+            </a>
           </div>
-          <el-menu-item index="/">首页</el-menu-item>
+
+          <el-menu-item index="/" @click="clearKeyword">首页</el-menu-item>
           <el-menu-item index="/goods">全部商品</el-menu-item>
+
+
           <div class="so">
-            <el-input placeholder="请输入搜索内容" v-model="keyword">
+            <el-input v-model="keyword" placeholder="请输入搜索内容">
               <el-button slot="append" icon="el-icon-search" @click="searchClick"></el-button>
             </el-input>
           </div>
@@ -71,9 +65,7 @@
       <!-- 顶栏容器END -->
 
       <!-- 登录模块 -->
-      <Login></Login>
-      <!-- 注册模块 -->
-      <Register :register="register" @fromChild="isRegister"></Register>
+      <Login/>
 
       <!-- 主要区域容器 -->
       <el-main>
@@ -89,9 +81,9 @@
           <div class="ng-promise-box">
             <div class="ng-promise">
               <p class="text">
-                <a class="icon1" href="javascript:;">7天无理由退换货</a>
-                <a class="icon2" href="javascript:;">满99元全场免邮</a>
-                <a class="icon3" style="margin-right: 0" href="javascript:;">100%品质保证</a>
+                <a class="icon1" href="javascript:">7天无理由退换货</a>
+                <a class="icon2" href="javascript:">满99元全场免邮</a>
+                <a class="icon3" href="javascript:" style="margin-right: 0">100%品质保证</a>
               </p>
             </div>
           </div>
@@ -108,7 +100,8 @@
                 path:'/goods',
                 query:{categoryID:null},
                 params:{categoryID:null}
-              }">全部商品</router-link>
+              }">全部商品
+              </router-link>
               <span>|</span>
               <a href="https://blog.zxpersonalweb.top">我的博客</a>
             </p>
@@ -122,8 +115,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-import { mapGetters } from "vuex";
+import {mapActions, mapGetters,mapState} from "vuex";
 
 export default {
   beforeUpdate() {
@@ -133,11 +125,11 @@ export default {
     return {
       activeIndex: "", // 头部导航栏选中的标签
       keyword: "", // 搜索条件
-      register: false, // 是否显示注册组件
+      //register: false, // 是否显示注册组件
       visible: false, // 是否退出登录
     };
   },
-  created() {
+  activated() {
     // 获取浏览器localStorage，判断用户是否已经登录
     if (localStorage.getItem("user")) {
       // 如果已经登录，设置vuex登录状态
@@ -145,33 +137,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["getUser",'getNum']),
-  },
-  watch: {
-    // 获取vuex的登录状态
-    getUser(val) {
-      if (val === "") {
-        // 用户没有登录
-        this.setShoppingCart([]);
-      }else {
-        this.$api.reqGetShoppingCart({
-          user_id: val.userId
-        }).then((res)=>{
-            if (res.data.code === 200) {
-              // 200 为成功, 更新vuex购物车状态
-              this.setShoppingCart(res.data.data);
-            } else {
-              // 提示失败信息
-              this.notifyError(res.data.msg);
-            }
-            }).catch(err => {
-                return Promise.reject(err)
-        })
-      }
-    }
+    ...mapGetters(["getUser", 'getNum']),
+    ...mapState(['shoppingCartList'])
   },
   methods: {
-    ...mapActions(["setUser", "setShowLogin",'setShoppingCart','getShoppingCartList']),
+    ...mapActions(["setUser", "setShowLogin", 'setShoppingCart', 'getShoppingCartList','getLike','getOrder']),
     login() {
       // 点击登录按钮, 通过更改vuex的showLogin值显示登录组件
       this.setShowLogin(true);
@@ -180,31 +150,50 @@ export default {
     logout() {
       this.visible = false;
       // 清空本地登录信息
-      localStorage.setItem("user", "");
+      localStorage.removeItem("user");
+      localStorage.removeItem("token")
       // 清空vuex登录信息
       this.setUser("");
       this.notifySucceed("成功退出登录");
     },
-    // 接收注册子组件传过来的数据
-    isRegister(val) {
-      this.register = val;
+    toOrder(){
+      this.$router.push('/orderCenter/order')
+    },
+    toCollect(){
+      this.$router.push('/center/collect')
+    },
+    toCenter(){
+      this.$router.push('/center/userCenter')
     },
     // 点击搜索按钮
     searchClick() {
-      //对象传参
-      //如果携带query参数，在跳转路由的时候一起携带上
-      if (this.$route.query) {
-        let location = {
-          name:'Goods',
-          params:{
-            keyword:this.keyword || undefined
-          }
+      this.$router.push({
+        name: 'Goods',
+        params: {
+          keyword: this.keyword
         }
-        location.query = this.$route.query
-        this.$router.push(location)
-      }
+      })
+    },
+    //去注册页面
+    toRegister() {
+      this.$router.push('/register')
+    },
+    clearKeyword() {
+      this.keyword = ''
     }
   },
+  mounted() {
+    //开启全局时间总线，清除keyword
+    this.$bus.$on('clear', () => {
+      this.keyword = ''
+    })
+    this.$bus.$on('getData',()=>{
+      this.getOrder()
+      this.getLike()
+      this.getShoppingCartList()
+    })
+
+  }
 };
 </script>
 
@@ -216,20 +205,25 @@ export default {
   border: 0;
   list-style: none;
 }
+
 #app .el-header {
   padding: 0;
 }
+
 #app .el-main {
   min-height: 300px;
   padding: 20px 0;
 }
+
 #app .el-footer {
   padding: 0;
 }
+
 a,
 a:hover {
   text-decoration: none;
 }
+
 /* 全局CSS END */
 
 /* 顶部导航栏CSS */
@@ -238,13 +232,16 @@ a:hover {
   background-color: #3d3d3d;
   margin-bottom: 20px;
 }
+
 .topbar .nav {
   width: 1225px;
   margin: 0 auto;
 }
+
 .topbar .nav ul {
   float: right;
 }
+
 .topbar .nav li {
   float: left;
   height: 40px;
@@ -254,40 +251,51 @@ a:hover {
   line-height: 40px;
   margin-left: 20px;
 }
+
 .topbar .nav .sep {
   color: #b0b0b0;
   font-size: 12px;
   margin: 0 5px;
 }
+
 .topbar .nav li .el-button {
   color: #b0b0b0;
 }
+
 .topbar .nav .el-button:hover {
   color: #fff;
 }
+
 .topbar .nav li a {
   color: #b0b0b0;
 }
+
 .topbar .nav a:hover {
   color: #fff;
 }
+
 .topbar .nav .shopCart {
   width: 120px;
   background: #424242;
 }
+
 .topbar .nav .shopCart:hover {
   background: #fff;
 }
+
 .topbar .nav .shopCart:hover a {
   color: #ff6700;
 }
+
 .topbar .nav .shopCart-full {
   width: 120px;
   background: #ff6700;
 }
+
 .topbar .nav .shopCart-full a {
   color: white;
 }
+
 /* 顶部导航栏CSS END */
 
 /* 顶栏容器CSS */
@@ -295,17 +303,20 @@ a:hover {
   max-width: 1225px;
   margin: 0 auto;
 }
+
 .el-header .logo {
   height: 60px;
   width: 189px;
   float: left;
   margin-right: 100px;
 }
+
 .el-header .so {
   margin-top: 10px;
   width: 300px;
   float: right;
 }
+
 /* 顶栏容器CSS END */
 
 /* 底栏容器CSS */
@@ -315,15 +326,18 @@ a:hover {
   background: #2f2f2f;
   padding-bottom: 20px;
 }
+
 .footer .ng-promise-box {
   border-bottom: 1px solid #3d3d3d;
   line-height: 145px;
 }
+
 .footer .ng-promise-box {
   margin: 0 auto;
   border-bottom: 1px solid #3d3d3d;
   line-height: 145px;
 }
+
 .footer .ng-promise-box .ng-promise p a {
   color: #fff;
   font-size: 20px;
@@ -335,21 +349,25 @@ a:hover {
   text-decoration: none;
   background: url("./assets/imgs/us-icon.png") no-repeat left 0;
 }
+
 .footer .github {
   height: 50px;
   line-height: 50px;
   margin-top: 20px;
 }
+
 .footer .github .github-but {
   width: 50px;
   height: 50px;
   margin: 0 auto;
   background: url("./assets/imgs/github.png") no-repeat;
 }
+
 .footer .mod_help {
   text-align: center;
   color: #888888;
 }
+
 .footer .mod_help p {
   margin: 20px 0 16px 0;
 }
@@ -358,11 +376,20 @@ a:hover {
   color: #888888;
   text-decoration: none;
 }
+
 .footer .mod_help p a:hover {
   color: #fff;
 }
+
 .footer .mod_help p span {
   padding: 0 22px;
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #b0b0b0;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
 }
 /* 底栏容器CSS END */
 </style>

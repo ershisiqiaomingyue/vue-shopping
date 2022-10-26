@@ -7,26 +7,37 @@
  -->
 <template>
   <div id="myLogin">
-    <el-dialog title="登录" width="300px" center :visible.sync="isLogin">
-      <el-form :model="LoginUser" :rules="rules" status-icon ref="ruleForm" class="demo-ruleForm">
-        <el-form-item prop="name">
-          <el-input prefix-icon="el-icon-user-solid" placeholder="请输入账号" v-model="LoginUser.name"></el-input>
-        </el-form-item>
-        <el-form-item prop="pass">
-          <el-input
-              prefix-icon="el-icon-view"
-              type="password"
-              placeholder="请输入密码"
-              v-model="LoginUser.pass"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="medium" type="primary" @click="Login" style="width:100%;">登录</el-button>
-        </el-form-item>
-      </el-form>
+    <el-dialog title="登录" width="600px" center :visible.sync="isLogin">
+      <div class="container">
+        <div class="wxLogin">
+          <img src="" alt="微信登录图片">
+          <i>打开微信扫一扫登录，更加安全便捷！</i>
+        </div>
+        <div class="login">
+          <el-form :model="LoginUser" :rules="rules" status-icon ref="ruleForm" class="demo-ruleForm">
+            <el-form-item prop="name">
+              <el-input prefix-icon="el-icon-user-solid" placeholder="请输入账号/邮箱/手机号" v-model="LoginUser.username"></el-input>
+            </el-form-item>
+            <el-form-item prop="pass">
+              <el-input
+                  prefix-icon="el-icon-view"
+                  type="password"
+                  placeholder="请输入密码"
+                  v-model="LoginUser.password"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button size="medium" type="primary" @click="login" style="width:100%;margin: 0 auto">登录</el-button>
+              <el-button size="medium" type="danger" @click="forget" style="width:100%;margin: 10px 0 auto">忘记密码</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+
     </el-dialog>
   </div>
 </template>
+
 <script>
 import { mapActions } from "vuex";
 
@@ -64,13 +75,13 @@ export default {
     };
     return {
       LoginUser: {
-        name: "",
-        pass: ""
+        username: "",
+        password: ""
       },
       // 用户信息校验规则,validator(校验方法),trigger(触发方式),blur为在组件 Input 失去焦点时触发
       rules: {
-        name: [{ validator: validateName, trigger: "blur" }],
-        pass: [{ validator: validatePass, trigger: "blur" }]
+        username: [{ validator: validateName, trigger: "blur" }],
+        password: [{ validator: validatePass, trigger: "blur" }]
       }
     };
   },
@@ -88,32 +99,33 @@ export default {
   },
   methods: {
     ...mapActions(["setUser", "setShowLogin"]),
-    Login() {
+    login() {
       // 通过element自定义表单校验规则，校验用户输入的用户信息
       this.$refs["ruleForm"].validate(valid => {
         //如果通过校验开始登录
         if (valid) {
-          this.$api.login({
-            account: this.LoginUser.name,
-            password: this.LoginUser.pass
-          })
-              .then(res => {
+          this.$api.reqLogin({
+            account: this.LoginUser.username,
+            password: this.LoginUser.password
+          }).then(res => {
                 // “200”代表登录成功，其他的均为失败
-                if (res.data.code === 200) {
+                if (res.code === 200) {
                   // 隐藏登录组件
                   this.isLogin = false;
                   // 登录信息存到本地
-                  let user = JSON.stringify(res.data.data);
-                  localStorage.setItem("user", user);
+                  let user = JSON.stringify(res.data);
+                  window.localStorage.setItem("user", user);
+                  window.localStorage.setItem('token',res.data.token)
                   // 登录信息存到vuex
-                  this.setUser(res.data.data);
+                  this.$bus.$emit('getData')
+                  this.setUser(res.data);
                   // 弹出通知框提示登录成功信息
-                  this.notifySucceed(res.data.msg);
+                  this.notifySucceed(res.msg);
                 } else {
                   // 清空输入框的校验状态
                   this.$refs["ruleForm"].resetFields();
                   // 弹出通知框提示登录失败信息
-                  this.notifyError(res.data.msg);
+                  this.notifyError(res.msg);
                 }
               }).catch(err => {
             return Promise.reject(err);
@@ -122,10 +134,35 @@ export default {
           return false;
         }
       });
+    },
+    forget(){
+
     }
   }
 }
 </script>
-<style>
+<style scoped>
+.container{
+  height: 300px;
+  width: 500px;
+}
+.wxLogin{
+  float: left;
+  margin: 0 auto;
+  height: 300px;
+  width: 250px;
+}
+.wxLogin i{
+  position: relative;
+  float: right;
+  top: 230px;
+  font-family: Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  font-style: normal;
+}
+.login{
+  float: right;
+}
 </style>
 
