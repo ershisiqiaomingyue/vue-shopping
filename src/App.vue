@@ -155,6 +155,7 @@ export default {
       // 清空vuex登录信息
       this.setUser("");
       this.notifySucceed("成功退出登录");
+      this.$router.push('/')
     },
     toOrder(){
       this.$router.push('/orderCenter/order')

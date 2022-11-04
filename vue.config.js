@@ -1,10 +1,11 @@
 const { defineConfig } = require('@vue/cli-service')
+
 module.exports = defineConfig({
   transpileDependencies: true,
   productionSourceMap:false,
   // 关闭lint校验
   lintOnSave: false,
-  publicPath: './',
+  publicPath: '/',
   devServer: {
     open: true,
     //port: 9000,

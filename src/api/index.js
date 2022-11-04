@@ -12,6 +12,26 @@ let order = '/order/auth'
 
 export default {
 
+    /**
+     * 微信登录后，使用token获取用户信息
+     */
+    reqGetUserInfo(){
+        return request({
+            url:'/user/login/getUserInfo',
+            method:'get'
+        })
+    },
+
+    /**
+     * 获取二维码
+     */
+    reqGetWxLoginQRCode() {
+        return request({
+            url:'api/ucenter/wx/getWxLoginQRCode',
+            method:'get'
+        })
+    },
+
 
     //上传图片
     reqUploadImgList(data){

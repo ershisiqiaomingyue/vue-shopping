@@ -7,12 +7,15 @@
  -->
 <template>
   <div id="myLogin">
-    <el-dialog title="登录" width="600px" center :visible.sync="isLogin">
-      <div class="container">
-        <div class="wxLogin">
-          <img src="" alt="微信登录图片">
-          <i>打开微信扫一扫登录，更加安全便捷！</i>
+    <el-dialog title="登录" width="700px" center :visible.sync="isLogin">
+      <div class="login-container">
+        <!--微信登录-->
+        <div id="wxLogin">
+
         </div>
+<!--
+        <i>打开微信扫一扫登录，更加安全便捷！</i>
+-->
         <div class="login">
           <el-form :model="LoginUser" :rules="rules" status-icon ref="ruleForm" class="demo-ruleForm">
             <el-form-item prop="name">
@@ -39,7 +42,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import {mapActions, mapState} from "vuex";
 
 export default {
   data() {
@@ -82,7 +85,9 @@ export default {
       rules: {
         username: [{ validator: validateName, trigger: "blur" }],
         password: [{ validator: validatePass, trigger: "blur" }]
-      }
+      },
+      showLoginDialog:this.showLogin,
+      openid:null
     };
   },
   computed: {
@@ -95,6 +100,29 @@ export default {
         this.$refs["ruleForm"].resetFields();
         this.setShowLogin(val);
       }
+    },
+    ...mapState({
+      showLogin: state => state.user.showLogin
+    })
+  },
+  watch:{
+    showLogin(val){
+      if (val === true) {
+        this.getQRCode()
+      }
+    }
+  },
+  mounted() {
+    //初始化微信js库
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = "https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"
+    document.body.appendChild(script)
+
+    //微信回调的方法
+    let self = this;
+    window["loginCallback"] = (name, token, openid) =>{
+      self.loginCallback(name, token, openid);
     }
   },
   methods: {
@@ -137,32 +165,72 @@ export default {
     },
     forget(){
 
+    },
+    //微信登录
+    loginCallback(nickName, token) {
+      console.log('进入回调函数！')
+      console.log('name=' + nickName)
+      console.log('token=' + token)
+      // 打开手机登录层，绑定手机号，改逻辑与手机登录一致
+      if(token != null) {
+        window.localStorage.setItem('token',token)
+        //使用token去获取用户信息
+        this.$api.reqGetUserInfo()
+            .then(res => {
+              if (res.code === 200) {
+                window.localStorage.setItem('user',res.data);
+                this.$bus.$emit('getData')
+                this.setUser(res.data);
+                this.notifySucceed('登录成功！')
+                this.isLogin = false
+              }else {
+                this.notifyError('登录失败，请重新尝试！')
+              }
+            })
+      } else {
+        this.notifyError('登录失败，请重新尝试！')
+      }
+    },
+
+    getQRCode(){
+      //获取二维码
+      this.$api.reqGetWxLoginQRCode()
+          .then(res=>{
+            console.log(res)
+            var obj = new WxLogin({
+              self_redirect:true,
+              id: 'wxLogin',
+              appid:res.data.appid,
+              scope:res.data.scope,
+              redirect_uri:res.data.redirectUri,
+              state:res.data.state,
+              style:'black',
+              href:''
+            })
+          })
     }
   }
 }
 </script>
+
 <style scoped>
-.container{
-  height: 300px;
-  width: 500px;
+.login-container{
+  height: 400px;
+  width: 700px;
 }
-.wxLogin{
-  float: left;
-  margin: 0 auto;
-  height: 300px;
-  width: 250px;
-}
-.wxLogin i{
+
+.login-container .login{
   position: relative;
+  right: 100px;
+  top: 60px;
   float: right;
-  top: 230px;
-  font-family: Microsoft YaHei, Heiti SC, tahoma, arial, Hiragino Sans GB, "\5B8B\4F53", sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  font-style: normal;
+  width: 250px;
+  height: 250px;
 }
-.login{
-  float: right;
+#wxLogin{
+  float: left;
+  width: 290px;
+  height: 290px;
 }
 </style>
 

@@ -13,6 +13,11 @@ export const routes = [
         component: () => import('@/views/Home')
     },
     {
+        path:'/weixin/callback',
+        name:'Callback',
+        component:() => import('@/views/weixin/Callback.vue')
+    },
+    {
         path: '/register',
         name: 'Register',
         component: () => import('@/views/Register')
